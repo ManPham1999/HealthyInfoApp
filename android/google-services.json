@@ -1,0 +1,83 @@
+{
+  "project_info": {
+    "project_number": "808513357172",
+    "firebase_url": "https://capstone-project-9b690.firebaseio.com",
+    "project_id": "capstone-project-9b690",
+    "storage_bucket": "capstone-project-9b690.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:808513357172:android:40864ecea40078f638d821",
+        "android_client_info": {
+          "package_name": "com.fitnessapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "808513357172-1p7jk726rhsij9qahidl2lsa93rmhr65.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fitnessapp",
+            "certificate_hash": "06fe746993ed20b7dbb762808f18283a4cb6f51c"
+          }
+        },
+        {
+          "client_id": "808513357172-okjgdvlj5ir57dinn624uij7n9jjeb8p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQTjHHuRBGUOzyetvRNQAdNZdE5NHbQ-I"
+        },
+        {
+          "current_key": "AIzaSyDRmCP12-9OyncZYO4QIDr_EaFlHnQ2eOo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "808513357172-okjgdvlj5ir57dinn624uij7n9jjeb8p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:808513357172:android:cf6ece3932a3f60938d821",
+        "android_client_info": {
+          "package_name": "com.healthyinfoapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "808513357172-okjgdvlj5ir57dinn624uij7n9jjeb8p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQTjHHuRBGUOzyetvRNQAdNZdE5NHbQ-I"
+        },
+        {
+          "current_key": "AIzaSyDRmCP12-9OyncZYO4QIDr_EaFlHnQ2eOo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "808513357172-okjgdvlj5ir57dinn624uij7n9jjeb8p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
