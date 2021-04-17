@@ -188,19 +188,21 @@ function FriendRequest({navigation}) {
                       <View
                         style={{flexDirection: 'row', alignItems: 'center'}}
                         key={index}>
-                        <TouchableOpacity
-                          onPress={() => onAccept(item)}
-                          activeOpacity={0.5}
+                        <TouchableOpacity 
+                          onPress={() => onAccept(item)} 
+                          activeOpacity={0.5} 
                           style={styles.customConfirm}>
-                          <Text style={{color: '#fff', fontSize: 15}}>
-                            Confirm
-                          </Text>
+                            <Text style={{color: '#fff', fontSize: 13}}>
+                              Accept
+                            </Text>
                         </TouchableOpacity>
-                        <TouchableOpacity
-                          onPress={() => onReject(item)}
-                          activeOpacity={0.5}
-                          style={{marginLeft: 10}}>
-                          <AntDesign name="close" color="#595959" size={18} />
+                        <TouchableOpacity 
+                          onPress={() => onReject(item)} 
+                          activeOpacity={0.5} 
+                          style={styles.customReject}>
+                            <Text style={{color: '#00ACE2', fontSize: 13}}>
+                              Reject
+                            </Text>
                         </TouchableOpacity>
                       </View>
                     </View>
@@ -256,13 +258,19 @@ function ChallengeRequest({navigation}) {
                 </View>
               </View>
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <TouchableOpacity
-                  activeOpacity={0.5}
+                <TouchableOpacity 
+                  activeOpacity={0.5} 
                   style={styles.customConfirm}>
-                  <Text style={{color: '#fff', fontSize: 15}}>Accept</Text>
+                    <Text style={{color: '#fff', fontSize: 13}}>
+                      Accept
+                    </Text>
                 </TouchableOpacity>
-                <TouchableOpacity activeOpacity={0.5} style={{marginLeft: 10}}>
-                  <AntDesign name="close" color="#595959" size={18} />
+                <TouchableOpacity 
+                  activeOpacity={0.5} 
+                  style={styles.customReject}>
+                    <Text style={{color: '#00ACE2', fontSize: 13}}>
+                      Reject
+                    </Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -370,4 +378,13 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     borderRadius: 5,
   },
+  customReject: {
+    borderWidth: 1,
+    borderColor: '#00ACE2',
+    padding: 6,
+    paddingRight: 10,
+    paddingLeft: 10,
+    borderRadius: 5,
+    marginLeft: 5,
+  }
 });

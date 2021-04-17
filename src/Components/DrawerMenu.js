@@ -92,7 +92,7 @@ const DrawerMenu = (props) => {
           <View style={styles.drawerContent}>
             <ImageBackground
               source={require('../assets/drawer.jpg')}
-              style={{width: undefined, paddingBottom: 40, marginTop: -80}}
+              style={{width: undefined, paddingBottom: 25, marginTop: -80}}
               resizeMode="cover">
               <View style={styles.userInfo}>
                 <View style={{marginTop: 35}}>
@@ -218,6 +218,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginTop: 10,
     color: '#fff',
+    textTransform: 'capitalize'
   },
   userInfo: {
     alignItems: 'center',

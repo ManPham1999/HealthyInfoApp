@@ -93,14 +93,11 @@ const HomeScreen = ({navigation}) => {
         bucketInterval: 1, // optional - default 1.
       };
       // get distance
-      await GoogleFit.getDailyDistanceSamples(opt, async (isErr, res) => {
-        await setDistance(res);
+      await GoogleFit.getDailyDistanceSamples(opt).then(res => {
+        setDistance(res);
       });
       //get calorie
-      await GoogleFit.getDailyCalorieSamples(optCalo, async (isErr, res) => {
-        if (isErr) {
-          console.log('getDailyCalorieSamples error');
-        }
+      await GoogleFit.getDailyCalorieSamples(optCalo).then(res => {
         setCalories(res);
       });
     };

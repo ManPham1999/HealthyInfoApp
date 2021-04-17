@@ -12,19 +12,37 @@ import {FlatList} from 'react-native-gesture-handler';
 import * as Animatable from 'react-native-animatable';
 import GoogleFit from 'react-native-google-fit';
 
-const wait = (timeout) => {
-  return new Promise((resolve) => {
+const wait = timeout => {
+  return new Promise(resolve => {
     setTimeout(resolve, timeout);
   });
 };
 
 const MenuItem = memo(({navigation, route, steps, calories, distance}) => {
   const [newCalo, setNewCalo] = useState([]);
+  const [newSteps, setNewSteps] = useState([]);
+  const [newDistance, setNewDistance] = useState([]);
   console.log('MenuItem rendered!');
   const [refreshing, setRefreshing] = React.useState(false);
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
+    const opt = {
+      startDate: '2020-11-01T00:00:17.971Z', // required
+      endDate: new Date().toISOString(), // required
+      bucketUnit: 'DAY', // optional - default "DAY". Valid values: "NANOSECOND" | "MICROSECOND" | "MILLISECOND" | "SECOND" | "MINUTE" | "HOUR" | "DAY"
+      bucketInterval: 1, // optional - default 1.
+    };
+    await GoogleFit.getDailySteps(new Date())
+      .then(async res => {
+        await setNewSteps(res);
+      })
+      .catch();
+
+    // get distance
+    await GoogleFit.getDailyDistanceSamples(opt).then(res => {
+      setNewDistance(res);
+    });
     await GoogleFit.getDailyCalorieSamples(
       {
         startDate: '2020-11-01T00:00:17.971Z', // required
@@ -86,14 +104,17 @@ const MenuItem = memo(({navigation, route, steps, calories, distance}) => {
             {
               id: '3',
               title: 'Steps',
-              info: steps,
+              info: newSteps.length > 0 ? newSteps[2]?.steps[0]?.value : steps,
               unit: 'steps',
               icon: require('../assets/steps.png'),
             },
             {
               id: '4',
               title: 'Distance',
-              info: Math.ceil(distance) / 1000,
+              info:
+                newDistance.length > 0
+                  ? Math.ceil(newDistance[newDistance.length - 1].distance) / 1000
+                  : Math.ceil(distance) / 1000,
               unit: 'km',
               icon: require('../assets/distance.png'),
             },
@@ -101,7 +122,7 @@ const MenuItem = memo(({navigation, route, steps, calories, distance}) => {
           renderItem={renderItem}
           key={2}
           numColumns={2}
-          keyExtractor={(item) => `${item.id}`}
+          keyExtractor={item => `${item.id}`}
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.flatlist}

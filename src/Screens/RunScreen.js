@@ -22,22 +22,24 @@ const RunScreen = ({navigation, route}) => {
   const onUnSub = () => {
     unsubscribe.unsub();
   };
-  const onReturnMaxElementIndex = (positionArr) => {
+  const onReturnMaxElementIndex = positionArr => {
     var max = positionArr[0];
     for (let i = 0; i < positionArr.length; i++) {
       const element = positionArr[i];
-      if (calcCrow(
-        max.latitude,
-        max.longitude,
-        element.latitude,
-        element.longitude,
-      ) > 0) {
-        max = element
+      if (
+        calcCrow(
+          max.latitude,
+          max.longitude,
+          element.latitude,
+          element.longitude,
+        ) > 0
+      ) {
+        max = element;
       }
     }
     return max;
   };
-  const resultDistance = async()=>{
+  const resultDistance = async () => {
     var maxLocation = await onReturnMaxElementIndex(position);
     const dis = await calcCrow(
       position[0].latitude,
@@ -45,17 +47,31 @@ const RunScreen = ({navigation, route}) => {
       maxLocation.latitude,
       maxLocation.longitude,
     ); //km
-    return dis*1000;
-  }
-  const resultAvgSpeed =async()=>{
+    return dis * 1000;
+  };
+  const resultAvgSpeed = async () => {
     var sum = 0;
     var avg = 0.0;
     for (var i = 0; i < speeds.length; i++) {
-      sum += speeds[i]; 
+      sum += speeds[i];
     }
-    avg = await sum / speeds.length;
+    avg = (await sum) / speeds.length;
     return avg;
-  }
+  };
+  useEffect(() => {
+    RNLocation.requestPermission({
+      ios: 'whenInUse', // or 'always'
+      android: {
+        detail: 'coarse', // or 'fine'
+        rationale: {
+          title: 'We need to access your location',
+          message: 'We use your location to show where you are on the map',
+          buttonPositive: 'OK',
+          buttonNegative: 'Cancel',
+        },
+      },
+    });
+  }, []);
   useEffect(() => {
     RNLocation.configure({
       distanceFilter: 0.5, // Meters
@@ -71,13 +87,15 @@ const RunScreen = ({navigation, route}) => {
     });
   }, []);
   const onSubLocation = async () => {
+    console.log('subcribing...');
     const unsubscriber = await RNLocation.subscribeToLocationUpdates(
-      async (locations) => {
-        await setPosition((prevArray) => [
+      async locations => {
+        console.log(locations);
+        await setPosition(prevArray => [
           ...prevArray,
           {latitude: locations[0].latitude, longitude: locations[0].longitude},
         ]);
-        await setSpeeds((prevspeeds) => [...prevspeeds, locations[0].speed]);
+        await setSpeeds(prevspeeds => [...prevspeeds, locations[0].speed]);
       },
     );
     setUnsubscribe({unsub: unsubscriber});
@@ -102,24 +120,24 @@ const RunScreen = ({navigation, route}) => {
   function toRad(Value) {
     return (Value * Math.PI) / 180;
   }
-  const onResete =async(timeFinal,distanceFinal,speedFinal) => {
-    console.log('timeFinal: ',timeFinal);
+  const onResete = async (timeFinal, distanceFinal, speedFinal) => {
+    console.log('timeFinal: ', timeFinal);
     await navigation.navigate('EndActivity', {
       time: `${timeFinal}`,
       totalmet: distanceFinal,
       avgSpeed: speedFinal,
     });
-  }
+  };
   const onFinishExc = async () => {
     var distanceFinal = await resultDistance();
     var speedFinal = await resultAvgSpeed();
-    await onResete(startTime,distanceFinal,speedFinal);
+    await onResete(startTime, distanceFinal, speedFinal);
     await onUnSub();
     setSpeeds([]);
     setPosition([]);
   };
   const onStartProgram = async () => {
-    setStartTime((prev)=> prev = new Date());
+    setStartTime(prev => (prev = new Date()));
     await onSubLocation();
   };
   return (
@@ -174,7 +192,7 @@ const RunScreen = ({navigation, route}) => {
                   onPress={() => onStartProgram()}>
                   <Text
                     style={{fontSize: 22, color: '#000', fontWeight: '700'}}>
-                    Start
+                    Go
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -189,7 +207,7 @@ const RunScreen = ({navigation, route}) => {
                   <Text style={{color: '#000', fontSize: 15}}>Distance</Text>
                   <Text style={styles.textInfo}>
                     {position.length > 0
-                        ? Math.round(
+                      ? Math.round(
                           calcCrow(
                             position[0].latitude,
                             position[0].longitude,
@@ -258,7 +276,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   footer: {
-    flex: 0.6,
+    flex: 0.4,
     backgroundColor: '#ff9d15', //"#44CAAC"
     borderTopLeftRadius: 35,
     borderTopRightRadius: 50,
@@ -308,7 +326,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 5,
     paddingHorizontal: 20,
   },
   textInfo: {

@@ -120,6 +120,7 @@ const ProfileScreen = ({navigation}) => {
                 </View>
               </View>
             </View>
+            <View style={styles.setting}></View>
           </ScrollView>
         </View>
       </SafeAreaView>
@@ -188,6 +189,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginTop: 12,
+    textTransform: 'capitalize'
   },
   subtext: {
     fontSize: 14,

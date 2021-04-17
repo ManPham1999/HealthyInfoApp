@@ -98,7 +98,7 @@ const StatisticScreen = () => {
             </View>
             {report !== undefined ? (
               report.length > 0 ? (
-                report.map((item, index) => (
+                report.reverse().map((item, index) => (
                   <View key={index}>
                     <View style={styles.subContainer}>
                       <View>
@@ -114,32 +114,32 @@ const StatisticScreen = () => {
                           source={require('../assets/distance.png')}
                           resizeMode="contain"
                         />
-                        <Text style={{marginTop: 15, fontSize: 18}}>
+                        <Text style={{marginTop: 15, fontSize: 18, alignSelf: 'center'}}>
                           {Math.round(item.distance)}
                         </Text>
-                        <Text style={{fontSize: 14, color: '#9e9e9e'}}>ms</Text>
+                        <Text style={{fontSize: 14, color: '#9e9e9e', alignSelf: 'center'}}>Meters</Text>
                       </View>
                       <View>
                         <Image
                           style={styles.icon}
-                          source={require('../assets/distance.png')}
+                          source={require('../assets/clock.png')}
                           resizeMode="contain"
                         />
-                        <Text style={{marginTop: 15, fontSize: 18}}>
+                        <Text style={{marginTop: 15, fontSize: 18, alignSelf: 'center'}}>
                           {item.time}
                         </Text>
-                        <Text style={{fontSize: 14, color: '#9e9e9e'}}>m</Text>
+                        <Text style={{fontSize: 14, color: '#9e9e9e'}}>Minutes</Text>
                       </View>
                       <View>
                         <Image
                           style={styles.icon}
-                          source={require('../assets/steps.png')}
+                          source={require('../assets/speed.png')}
                           resizeMode="contain"
                         />
-                        <Text style={{marginTop: 15, fontSize: 18}}>
+                        <Text style={{marginTop: 15, fontSize: 18, alignSelf: 'center'}}>
                           {Math.ceil(item.speedavg)}
                         </Text>
-                        <Text style={{fontSize: 14, color: '#9e9e9e'}}>
+                        <Text style={{fontSize: 14, color: '#9e9e9e', alignSelf: 'center'}}>
                           m/s
                         </Text>
                       </View>
@@ -149,11 +149,11 @@ const StatisticScreen = () => {
                           source={require('../assets/calo.png')}
                           resizeMode="contain"
                         />
-                        <Text style={{marginTop: 15, fontSize: 18}}>
+                        <Text style={{marginTop: 15, fontSize: 18, alignSelf: 'center'}}>
                           {item.calories}
                         </Text>
-                        <Text style={{fontSize: 14, color: '#9e9e9e'}}>
-                          Calos/m
+                        <Text style={{fontSize: 14, color: '#9e9e9e', alignSelf: 'center'}}>
+                          Calories
                         </Text>
                       </View>
                     </View>
@@ -242,6 +242,7 @@ const styles = StyleSheet.create({
   icon: {
     width: 30,
     height: 30,
+    alignSelf: 'center'
   },
   iconRef: {
     backgroundColor: '#e52a2a',

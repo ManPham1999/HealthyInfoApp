@@ -49,32 +49,33 @@ const EndActivityScreen = ({navigation, route}) => {
         console.log(e.message);
       }
     };
+    getData();
+  }, []);
+  
+  useEffect(() => {
+    fetchWeight().then(v => setWeight(v));
+    fetchHeight().then(v => setHeight(v));
+  }, []);
+  async function fetchWeight() {
     const opt = {
-      startDate: '2017-01-01T00:00:17.971Z', // required
-      endDate: new Date().toISOString(), // required
-    };
-    const opt2 = {
-      unit: 'kg', // required; default 'kg'
+      unit: 'pound', // required; default 'kg'
       startDate: '2017-01-01T00:00:17.971Z', // required
       endDate: new Date().toISOString(), // required
       bucketUnit: 'DAY', // optional - default "DAY". Valid values: "NANOSECOND" | "MICROSECOND" | "MILLISECOND" | "SECOND" | "MINUTE" | "HOUR" | "DAY"
       bucketInterval: 1, // optional - default 1.
       ascending: false, // optional; default false
     };
-    getData();
-    GoogleFit.getWeightSamples(opt2, (isError, result) => {
-      if (isError) {
-        console.log('get weight error!');
-      }
-      setWeight(result[0].value);
-    });
-    GoogleFit.getHeightSamples(opt, (isError, result) => {
-      if (isError) {
-        console.log('get height error!');
-      }
-      setHeight(result[0].value);
-    });
-  }, []);
+    const res = await GoogleFit.getWeightSamples(opt);
+    return res[0].value;
+  }
+  async function fetchHeight() {
+    const opt = {
+      startDate: '2017-01-01T00:00:17.971Z', // required
+      endDate: new Date().toISOString(), // required
+    };
+    const res = await GoogleFit.getHeightSamples(opt);
+    return res[0].value;
+  }
   const onInsertHistory = async () => {
     var calo = Math.round(
       0.035 * weight +
@@ -94,12 +95,12 @@ const EndActivityScreen = ({navigation, route}) => {
         avgSpeed: avgSpeed,
       },
     })
-      .then((res) => {
+      .then(res => {
         if (res.data) {
           navigation.navigate('HomeDrawer');
         }
       })
-      .catch((err) => {
+      .catch(err => {
         console.log('error: ', err);
       });
   };
@@ -246,20 +247,20 @@ const EndActivityScreen = ({navigation, route}) => {
                 </Text>
               </View>
             </View>
-            <View>
+            <View style={styles.buttonEnd}>
               <TouchableOpacity
                 activeOpacity={0.8}
                 style={styles.button}
                 onPress={() => onInsertHistory()}>
                 <Text style={{fontSize: 18, color: '#000', fontWeight: '700'}}>
-                  Add to your journey
+                  Add Journey
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 activeOpacity={0.8}
-                style={styles.button}
+                style={styles.buttonBack}
                 onPress={() => navigation.navigate('HomeDrawer')}>
-                <Text style={{fontSize: 18, color: '#000', fontWeight: '700'}}>
+                <Text style={{fontSize: 18, color: '#fff', fontWeight: '700'}}>
                   Back
                 </Text>
               </TouchableOpacity>
@@ -329,15 +330,30 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  buttonEnd: {
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between', 
+    marginTop: '40%', 
+    paddingHorizontal: 30,
+  },
   button: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 160,
-    height: 55,
-    marginHorizontal: 30,
-    marginTop: 160,
-    alignSelf: 'center',
+      backgroundColor: '#fff',
+      borderRadius: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 160,
+      height: 55,
+      alignSelf: 'center',
+  },
+  buttonBack: {
+      borderColor: '#fff',
+      borderWidth: 2,
+      borderRadius: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: 160,
+      height: 55,
+      alignSelf: 'center',
   },
 });
