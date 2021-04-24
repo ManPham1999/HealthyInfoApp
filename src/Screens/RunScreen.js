@@ -1,4 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
+import { io } from "socket.io-client";
 import {
   Button,
   SafeAreaView,
@@ -15,6 +16,9 @@ import MapView, {Marker, Polyline, PROVIDER_GOOGLE} from 'react-native-maps';
 import Loading from '../Components/Loading';
 
 const RunScreen = ({navigation, route}) => {
+  useEffect(()=>{
+    const socket = io("http://192.168.0.120:3000");
+  },[]);
   const [position, setPosition] = useState([]);
   const [speeds, setSpeeds] = useState([]);
   const [startTime, setStartTime] = useState('');
