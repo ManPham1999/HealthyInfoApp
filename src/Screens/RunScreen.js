@@ -1,31 +1,56 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import { io } from "socket.io-client";
+import {io} from 'socket.io-client';
 import {
   Button,
+  Image,
   SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import {ScrollView, TouchableOpacity} from 'react-native-gesture-handler';
+import jwt_decode from 'jwt-decode';
 import * as Animatable from 'react-native-animatable';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import RNLocation from 'react-native-location';
-import MapView, {Marker, Polyline, PROVIDER_GOOGLE} from 'react-native-maps';
+import MapView, {
+  Marker,
+  AnimatedRegion,
+  PROVIDER_GOOGLE,
+} from 'react-native-maps';
 import Loading from '../Components/Loading';
-
+const socket = io('https://capstoneprojectk23.herokuapp.com/');
 const RunScreen = ({navigation, route}) => {
-  useEffect(()=>{
-    const socket = io("http://192.168.0.120:3000");
-  },[]);
   const [position, setPosition] = useState([]);
   const [speeds, setSpeeds] = useState([]);
   const [startTime, setStartTime] = useState('');
   const [unsubscribe, setUnsubscribe] = useState();
+  const [userInformation, setUserInformation] = useState(null);
+  const getData = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem('token');
+      if (jsonValue != null) {
+        const decoded = jwt_decode(JSON.parse(jsonValue));
+        setUserInformation({
+          avatar: decoded.payload.avatar,
+          email: decoded.payload.email,
+          userName: decoded.payload.userName,
+          id: decoded.payload.id,
+        });
+      }
+    } catch (e) {
+      console.log(e.message);
+    }
+  };
+  useEffect(() => {
+    getData();
+  }, []);
   const onUnSub = () => {
     unsubscribe.unsub();
   };
+
   const onReturnMaxElementIndex = positionArr => {
     var max = positionArr[0];
     for (let i = 0; i < positionArr.length; i++) {
@@ -63,20 +88,6 @@ const RunScreen = ({navigation, route}) => {
     return avg;
   };
   useEffect(() => {
-    RNLocation.requestPermission({
-      ios: 'whenInUse', // or 'always'
-      android: {
-        detail: 'coarse', // or 'fine'
-        rationale: {
-          title: 'We need to access your location',
-          message: 'We use your location to show where you are on the map',
-          buttonPositive: 'OK',
-          buttonNegative: 'Cancel',
-        },
-      },
-    });
-  }, []);
-  useEffect(() => {
     RNLocation.configure({
       distanceFilter: 0.5, // Meters
       desiredAccuracy: {
@@ -90,18 +101,35 @@ const RunScreen = ({navigation, route}) => {
       maxWaitTime: 5000, // Milliseconds
     });
   }, []);
-  const onSubLocation = async () => {
-    console.log('subcribing...');
-    const unsubscriber = await RNLocation.subscribeToLocationUpdates(
-      async locations => {
-        console.log(locations);
-        await setPosition(prevArray => [
+  const onSubLocation = () => {
+    const unsubscriber = RNLocation.subscribeToLocationUpdates(locations => {
+      socket.emit('chat message', {
+        ...locations,
+        userId: userInformation?.id,
+        userName: userInformation?.userName,
+      });
+      socket.on('chat message', function (msg) {
+        setPosition(prevArray => [
           ...prevArray,
-          {latitude: locations[0].latitude, longitude: locations[0].longitude},
+          {
+            latitude: msg[0].latitude,
+            longitude: msg[0].longitude,
+            userId: msg?.userId,
+            userName: msg?.userName,
+          },
         ]);
-        await setSpeeds(prevspeeds => [...prevspeeds, locations[0].speed]);
-      },
-    );
+        setSpeeds(prevspeeds => [...prevspeeds, msg[0].speed]);
+      });
+    });
+    // const unsubscriber = await RNLocation.subscribeToLocationUpdates(
+    //   async locations => {
+    //     await setPosition(prevArray => [
+    //       ...prevArray,
+    //       {latitude: locations[0].latitude, longitude: locations[0].longitude},
+    //     ]);
+    //     await setSpeeds(prevspeeds => [...prevspeeds, locations[0].speed]);
+    //   },
+    // );
     setUnsubscribe({unsub: unsubscriber});
   };
   //This function takes in latitude and longitude of two location and returns the distance between them as the crow flies (in km)
@@ -166,12 +194,12 @@ const RunScreen = ({navigation, route}) => {
                 style={styles.ladding}>
                 {position.map((item, index) => (
                   <Marker
+                    title={item.userName}
                     key={index}
                     coordinate={{
                       latitude: item.latitude,
                       longitude: item.longitude,
-                    }}
-                  />
+                    }}></Marker>
                 ))}
               </MapView>
             ) : (
@@ -196,7 +224,7 @@ const RunScreen = ({navigation, route}) => {
                   onPress={() => onStartProgram()}>
                   <Text
                     style={{fontSize: 22, color: '#000', fontWeight: '700'}}>
-                    Go
+                    Start
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -213,10 +241,26 @@ const RunScreen = ({navigation, route}) => {
                     {position.length > 0
                       ? Math.round(
                           calcCrow(
-                            position[0].latitude,
-                            position[0].longitude,
-                            position[position.length - 1].latitude,
-                            position[position.length - 1].longitude,
+                            position.filter(
+                              p => p.userId === userInformation.id,
+                            )[0].latitude,
+                            position.filter(
+                              p => p.userId === userInformation.id,
+                            )[0].longitude,
+                            position.filter(
+                              p => p.userId === userInformation.id,
+                            )[
+                              position.filter(
+                                p => p.userId === userInformation.id,
+                              ).length - 1
+                            ].latitude,
+                            position.filter(
+                              p => p.userId === userInformation.id,
+                            )[
+                              position.filter(
+                                p => p.userId === userInformation.id,
+                              ).length - 1
+                            ].longitude,
                           ) * 1000,
                         )
                       : 0}
@@ -342,5 +386,12 @@ const styles = StyleSheet.create({
     color: '#000',
     fontWeight: '700',
     fontSize: 30,
+  },
+  icon: {
+    width: 30,
+    height: 30,
+    alignSelf: 'center',
+    padding: 12,
+    borderRadius: 120,
   },
 });
