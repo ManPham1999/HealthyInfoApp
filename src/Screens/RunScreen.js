@@ -15,19 +15,19 @@ import jwt_decode from 'jwt-decode';
 import * as Animatable from 'react-native-animatable';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import RNLocation from 'react-native-location';
-import MapView, {
-  Marker,
-  AnimatedRegion,
-  PROVIDER_GOOGLE,
-} from 'react-native-maps';
+import MapView, {Marker, PROVIDER_GOOGLE} from 'react-native-maps';
 import Loading from '../Components/Loading';
 const socket = io('https://capstoneprojectk23.herokuapp.com/');
+var randomColor = Math.floor(Math.random() * 16777215).toString(16);
+
 const RunScreen = ({navigation, route}) => {
   const [position, setPosition] = useState([]);
   const [speeds, setSpeeds] = useState([]);
   const [startTime, setStartTime] = useState('');
   const [unsubscribe, setUnsubscribe] = useState();
   const [userInformation, setUserInformation] = useState(null);
+  let filteredPositon = position.filter(p => p.userId === userInformation.id);
+  let filteredSpeeds = speeds.filter(p => p.userId === userInformation.id);
   const getData = async () => {
     try {
       const jsonValue = await AsyncStorage.getItem('token');
@@ -69,10 +69,10 @@ const RunScreen = ({navigation, route}) => {
     return max;
   };
   const resultDistance = async () => {
-    var maxLocation = await onReturnMaxElementIndex(position);
+    var maxLocation = await onReturnMaxElementIndex(filteredPositon);
     const dis = await calcCrow(
-      position[0].latitude,
-      position[0].longitude,
+      filteredPositon[0].latitude,
+      filteredPositon[0].longitude,
       maxLocation.latitude,
       maxLocation.longitude,
     ); //km
@@ -81,10 +81,10 @@ const RunScreen = ({navigation, route}) => {
   const resultAvgSpeed = async () => {
     var sum = 0;
     var avg = 0.0;
-    for (var i = 0; i < speeds.length; i++) {
-      sum += speeds[i];
+    for (var i = 0; i < filteredSpeeds.length; i++) {
+      sum += filteredSpeeds[i]?.speed;
     }
-    avg = (await sum) / speeds.length;
+    avg = (await sum) / filteredSpeeds.length;
     return avg;
   };
   useEffect(() => {
@@ -107,6 +107,7 @@ const RunScreen = ({navigation, route}) => {
         ...locations,
         userId: userInformation?.id,
         userName: userInformation?.userName,
+        color: `#${randomColor}`,
       });
       socket.on('chat message', function (msg) {
         setPosition(prevArray => [
@@ -116,20 +117,15 @@ const RunScreen = ({navigation, route}) => {
             longitude: msg[0].longitude,
             userId: msg?.userId,
             userName: msg?.userName,
+            color: msg?.color,
           },
         ]);
-        setSpeeds(prevspeeds => [...prevspeeds, msg[0].speed]);
+        setSpeeds(prevspeeds => [
+          ...prevspeeds,
+          {speed: msg[0].speed, userId: msg?.userId},
+        ]);
       });
     });
-    // const unsubscriber = await RNLocation.subscribeToLocationUpdates(
-    //   async locations => {
-    //     await setPosition(prevArray => [
-    //       ...prevArray,
-    //       {latitude: locations[0].latitude, longitude: locations[0].longitude},
-    //     ]);
-    //     await setSpeeds(prevspeeds => [...prevspeeds, locations[0].speed]);
-    //   },
-    // );
     setUnsubscribe({unsub: unsubscriber});
   };
   //This function takes in latitude and longitude of two location and returns the distance between them as the crow flies (in km)
@@ -159,14 +155,16 @@ const RunScreen = ({navigation, route}) => {
       totalmet: distanceFinal,
       avgSpeed: speedFinal,
     });
+    await setSpeeds([]);
+    filteredPositon = [];
+    filteredSpeeds = [];
+    await setPosition([]);
   };
   const onFinishExc = async () => {
     var distanceFinal = await resultDistance();
     var speedFinal = await resultAvgSpeed();
     await onResete(startTime, distanceFinal, speedFinal);
     await onUnSub();
-    setSpeeds([]);
-    setPosition([]);
   };
   const onStartProgram = async () => {
     setStartTime(prev => (prev = new Date()));
@@ -196,6 +194,7 @@ const RunScreen = ({navigation, route}) => {
                   <Marker
                     title={item.userName}
                     key={index}
+                    pinColor={item.color}
                     coordinate={{
                       latitude: item.latitude,
                       longitude: item.longitude,
@@ -238,29 +237,15 @@ const RunScreen = ({navigation, route}) => {
                 <View style={{flexDirection: 'column', alignItems: 'center'}}>
                   <Text style={{color: '#000', fontSize: 15}}>Distance</Text>
                   <Text style={styles.textInfo}>
-                    {position.length > 0
+                    {filteredPositon.length > 0
                       ? Math.round(
                           calcCrow(
-                            position.filter(
-                              p => p.userId === userInformation.id,
-                            )[0].latitude,
-                            position.filter(
-                              p => p.userId === userInformation.id,
-                            )[0].longitude,
-                            position.filter(
-                              p => p.userId === userInformation.id,
-                            )[
-                              position.filter(
-                                p => p.userId === userInformation.id,
-                              ).length - 1
-                            ].latitude,
-                            position.filter(
-                              p => p.userId === userInformation.id,
-                            )[
-                              position.filter(
-                                p => p.userId === userInformation.id,
-                              ).length - 1
-                            ].longitude,
+                            filteredPositon[0].latitude,
+                            filteredPositon[0].longitude,
+                            filteredPositon[filteredPositon.length - 1]
+                              .latitude,
+                            filteredPositon[filteredPositon.length - 1]
+                              .longitude,
                           ) * 1000,
                         )
                       : 0}
@@ -270,8 +255,10 @@ const RunScreen = ({navigation, route}) => {
                 <View style={{flexDirection: 'column', alignItems: 'center'}}>
                   <Text style={{color: '#000', fontSize: 15}}>Speed</Text>
                   <Text style={styles.textInfo}>
-                    {speeds.length > 0
-                      ? Math.ceil(speeds[speeds.length - 1])
+                    {filteredPositon.length > 0
+                      ? Math.ceil(
+                          filteredSpeeds[filteredSpeeds.length - 1]?.speed,
+                        )
                       : 0}
                     <Text style={{fontSize: 10, fontWeight: '700'}}>m/s</Text>
                   </Text>
